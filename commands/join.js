@@ -1,11 +1,6 @@
 const createEmbed = require('../embed.js');
 
-const ytdl = require('ytdl-core-discord');
-
 const {
-	createAudioPlayer,
-	NoSubscriberBehavior,
-	AudioPlayerStatus,
 	getVoiceConnection,
 	joinVoiceChannel,
 } = require('@discordjs/voice');

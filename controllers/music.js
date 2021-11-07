@@ -27,7 +27,7 @@ const queues = new Map();
 async function addSongToQueue({ url, connection, guildId, member }) {
 
 	const songMeta = await ytdl.getBasicInfo(url);
-	const { title, ownerChannelName, lengthSeconds } = songMeta.videoDetails;
+	const { title, ownerChannelName, lengthSeconds, thumbnails } = songMeta.videoDetails;
 	
 	// console.log(songMeta);
 	// console.log('------------------');
@@ -37,6 +37,7 @@ async function addSongToQueue({ url, connection, guildId, member }) {
 	// console.log(ownerChannelName);
 	// console.log(lengthSeconds);
 	// console.log(member);
+	// console.log(thumbnails);
 
 
 	const newSongData = {
@@ -45,13 +46,14 @@ async function addSongToQueue({ url, connection, guildId, member }) {
 		author: ownerChannelName,
 		duration: lengthSeconds,
 		requestedBy: member,
+		thumbnail: thumbnails[0].url,
 	};
 
 
 	const guildHasQueue = queues.has(guildId);
 	if(!guildHasQueue) queues.set(guildId, [ newSongData ]);
 	else {
-		console.log(newSongData);
+		// console.log(newSongData);
 		queues.get(guildId).push(newSongData);
 	}
 
@@ -71,8 +73,12 @@ async function autoPlay({ guildId }) {
 	const queue = queues.get(guildId);
 
 
-	const play = async url => {
-		const stream = await ytdl(url);
+	async function play(url) {
+		const stream = await ytdl(url, {
+			filter: 'audioonly',
+			quality: 'highestaudio',
+			highWaterMark: 1048576 * 32, // (32 MB)
+		});
 		const resource = createAudioResource(stream);
 
 		player.play(resource);
@@ -94,11 +100,15 @@ async function autoPlay({ guildId }) {
 	player.on('error', console.error);
 
 	player.on(AudioPlayerStatus.Idle, () => {
-		console.log('Audio player is idle (song probably ended)');
+		console.log('Audio player is idle');
+
 		queue.shift();
 
 		if(queue.length > 0) play(queue[0].url);
-		else queues.delete(guildId);
+		else {
+			queues.delete(guildId);
+			connection.destroy();
+		}
 	});
 
 
@@ -109,7 +119,6 @@ async function autoPlay({ guildId }) {
 
 
 module.exports = {
-	// playNextSongInQueue,
 	addSongToQueue,
 	autoPlay,
 

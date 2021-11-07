@@ -5,7 +5,8 @@
   "type": "commonjs",
   "scripts": {
     "start": "node .",
-    "dev": "nodemon ."
+    "dev": "nodemon .",
+    "dep": "node generateDependencyReport.js"
   },
   "author": "Elias Wennerlund",
   "license": "MIT",
@@ -18,7 +19,7 @@
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
-    "libsodium-wrappers": "^0.7.9",
+    "tweetnacl": "^1.0.3",
     "ytdl-core-discord": "^1.3.1"
   }
 }

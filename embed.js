@@ -13,7 +13,7 @@ function embed({ color, type, title, fields, author, desc, description, footer, 
 
 	if(title) e.setTitle(title);
 	if(fields) e.setFields(fields);
-	if(author) e.setAuthor(author);
+	if(author) e.setAuthor(author.name, author.icon_url, author.url);
 	if(desc || description) e.setDescription(desc || description);
 	if(footer) e.setFooter(footer);
 	if(image) e.setImage(image);

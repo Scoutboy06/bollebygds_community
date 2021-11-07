@@ -3,10 +3,13 @@ Music:
 	[x] /leave
 	[x] /play
 	[] /fs
-	[] /move
+	[] /search
+	[] /np
 	[] /skip
+	[] /move
 
 Moderation:
+	[] /bulk
 	[] /kick
 	[] /ban
 	[] /unban
@@ -14,13 +17,13 @@ Moderation:
 	[] /unmute
 	[] /vmute
 	[] /unvmute
-	[] /bulk
 	[] /report
 	[] /warn
 	[] /unwarn
 
 Other:
 	[x] /ping
+	[] /uptime
 	[] /help
 	[] /profile
 	[] /avatar

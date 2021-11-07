@@ -21,7 +21,7 @@ module.exports = {
 	aliases: ['p'],
 
 	async execute(interaction, callback) {
-		const { guildId, member } = interaction;
+		const { guildId, member, user } = interaction;
 		const { channel, channelId } = member.voice;
 
 
@@ -67,7 +67,7 @@ module.exports = {
 		}
 
 
-		const { queue, songTitle, author, duration, requestedBy } = await addSongToQueue({ url, connection, guildId, member: member.user.tag });
+		const { queue, songTitle, author, duration, requestedBy, thumbnail } = await addSongToQueue({ url, connection, guildId, member: member.user.tag });
 
 		// If the queue's length is 1, then that means that there were no music playing before
 		if(queue.length === 1) {
@@ -76,11 +76,14 @@ module.exports = {
 
 
 
-
 		const embed = createEmbed({
+			author: {
+				name: 'Added to queue',
+				icon_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`,
+			},
 			title: songTitle,
-			// description: 'song',
 			url,
+			thumbnail,
 			fields: [
 				{
 					name: 'Channel',
@@ -92,11 +95,7 @@ module.exports = {
 					value: secondsToTimestamp(parseInt(duration)),
 					inline: true,
 				},
-				{
-					name: 'Requested By',
-					value: requestedBy,
-				},
-			]
+			],
 		});
 
 		callback({ embeds: [embed], empheral: false });

@@ -1,11 +1,8 @@
-// const { generateDependencyReport } = require('@discordjs/voice');
 const { login, commands, refreshSlashCommands } = require('./config.js');
 const { queues } = require('./controllers/music.js');
 const dotenv = require('dotenv');
 
 dotenv.config();
-
-
 
 
 async function main() {
