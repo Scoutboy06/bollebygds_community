@@ -2,7 +2,7 @@ Music:
 	[x] /join
 	[x] /leave
 	[x] /play
-	[] /skip
+	[x] /skip
 	[] /search
 	[] /pause
 	[] /play
