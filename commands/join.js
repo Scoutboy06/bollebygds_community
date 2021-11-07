@@ -1,8 +1,11 @@
 const createEmbed = require('../embed.js');
+const { queues } = require('../controllers/music.js');
 
 const {
 	getVoiceConnection,
 	joinVoiceChannel,
+	createAudioPlayer,
+	NoSubscriberBehavior,
 } = require('@discordjs/voice');
 
 
@@ -37,6 +40,15 @@ module.exports = {
 				guildId,
 				adapterCreator: channel.guild.voiceAdapterCreator,
 			});
+
+
+			const player = createAudioPlayer({
+				behaviors: {
+					noSubscriber: NoSubscriberBehavior.Pause,
+				},
+			});
+
+			queues.set(guildId, { queue: [], player });
 
 
 

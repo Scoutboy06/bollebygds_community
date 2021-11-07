@@ -11,15 +11,18 @@ const {
 
 
 const queues = new Map();
-// guildId: [
-// 	{
-// 		url: String,
-// 		songTitle: String,
-// 		duration: Number,
-// 		author: String,
-// 		requestedBy: 'user tag (Scoutboy06#3524)'
-// 	}
-// ]
+// guildId: {
+// 	queue: [
+// 		{
+// 			url: String,
+// 			songTitle: String,
+// 			duration: Number,
+// 			author: String,
+// 			requestedBy: 'user tag (Scoutboy06#3524)'
+// 		}
+// 	],
+// 	player: AudioPlayer,
+// }
 
 
 
@@ -50,16 +53,21 @@ async function addSongToQueue({ url, connection, guildId, member }) {
 	};
 
 
-	const guildHasQueue = queues.has(guildId);
-	if(!guildHasQueue) queues.set(guildId, [ newSongData ]);
-	else {
-		// console.log(newSongData);
-		queues.get(guildId).push(newSongData);
-	}
+	// const guildHasQueue = queues.get(guildId)?.queue;
+
+	// if(!guildHasQueue) queues.get(guildId).queue = [ newSongData ];
+	// else queues.get(guildId).queue.push(newSongData);
+	const guildIsInList = queues.has(guildId);
+	
+	if(!guildIsInList) queues.set(guildId, {
+		queue: [ newSongData ],
+		// player: null
+	});
+	else queues.get(guildId).queue.push(newSongData);
 
 
 	return {
-		queue: queues.get(guildId),
+		queue: queues.get(guildId).queue,
 		...newSongData,
 	}
 }
@@ -70,57 +78,50 @@ async function addSongToQueue({ url, connection, guildId, member }) {
 async function autoPlay({ guildId }) {
 
 	const connection = getVoiceConnection(guildId);
-	const queue = queues.get(guildId);
+	const { queue, player } = queues.get(guildId);
 
 
-	async function play(url) {
-		const stream = await ytdl(url, {
-			filter: 'audioonly',
-			quality: 'highestaudio',
-			highWaterMark: 1048576 * 32, // (32 MB)
-		});
-		const resource = createAudioResource(stream);
-
-		player.play(resource);
-	}
-
-
-
-	const player = createAudioPlayer({
-		behaviors: {
-			noSubscriber: NoSubscriberBehavior.Pause,
-		},
-	});
-
-
-	player.on(AudioPlayerStatus.Playing, () => {
-		console.log('The audio player has started playing!');
-	});
 
 	player.on('error', console.error);
 
 	player.on(AudioPlayerStatus.Idle, () => {
-		console.log('Audio player is idle');
-
 		queue.shift();
 
-		if(queue.length > 0) play(queue[0].url);
+		if(queue.length > 0) playSong({ url: queue[0].url, player });
 		else {
 			queues.delete(guildId);
+			player.stop();
 			connection.destroy();
 		}
 	});
 
 
-	await play(queue[0].url);
+	await playSong({ url: queue[0].url, player });
 	connection.subscribe(player);
 }
+
+
+
+
+async function playSong({ url, player }) {
+	const stream = await ytdl(url, {
+		filter: 'audioonly',
+		quality: 'highestaudio',
+		highWaterMark: 1048576 * 32, // (32 MB)
+	});
+	const resource = createAudioResource(stream);
+
+	player.play(resource);
+}
+
+
 
 
 
 module.exports = {
 	addSongToQueue,
 	autoPlay,
+	playSong,
 
 	queues,
 }

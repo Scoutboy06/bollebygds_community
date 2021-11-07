@@ -21,7 +21,7 @@ module.exports = {
 	aliases: ['p'],
 
 	async execute(interaction, callback) {
-		const { guildId, member, user } = interaction;
+		const { guildId, member, user, options } = interaction;
 		const { channel, channelId } = member.voice;
 
 
@@ -52,8 +52,7 @@ module.exports = {
 
 
 		// const url = 'https://www.youtube.com/watch?v=i1P-9IspBus';
-		const commandOptions = interaction.options._hoistedOptions;
-		const url = commandOptions.find(opt => opt.name === 'url').value;
+		const url = options.get('url')?.value;
 
 		if(!ytdl.validateURL(url)) {
 			const embed = createEmbed({
@@ -70,9 +69,7 @@ module.exports = {
 		const { queue, songTitle, author, duration, requestedBy, thumbnail } = await addSongToQueue({ url, connection, guildId, member: member.user.tag });
 
 		// If the queue's length is 1, then that means that there were no music playing before
-		if(queue.length === 1) {
-			autoPlay({ guildId });
-		}
+		if(queue.length === 1) autoPlay({ guildId });
 
 
 

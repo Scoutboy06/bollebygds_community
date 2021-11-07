@@ -2,10 +2,13 @@ Music:
 	[x] /join
 	[x] /leave
 	[x] /play
-	[] /fs
-	[] /search
-	[] /np
 	[] /skip
+	[] /search
+	[] /pause
+	[] /play
+	[] /repeat
+	[] /np
+	[] /shuffle
 	[] /move
 
 Moderation:
