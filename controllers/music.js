@@ -22,6 +22,7 @@ const queues = new Map();
 // 		}
 // 	],
 // 	player: AudioPlayer,
+//	isPlaying: Boolean,
 // }
 
 
@@ -85,6 +86,8 @@ async function autoPlay({ guildId }) {
 	player.on('error', console.error);
 
 	player.on(AudioPlayerStatus.Idle, () => {
+		queues.get(guildId).isPlaying = false;
+
 		queue.shift();
 
 		if(queue.length > 0) playSong({ url: queue[0].url, player });
@@ -112,6 +115,8 @@ async function playSong({ url, player }) {
 	const resource = createAudioResource(stream);
 
 	player.play(resource);
+
+	queues.get(guildId).isPlaying = true;
 }
 
 

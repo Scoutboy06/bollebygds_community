@@ -48,7 +48,7 @@ module.exports = {
 				},
 			});
 
-			queues.set(guildId, { queue: [], player });
+			queues.set(guildId, { queue: [], player, isPlaying: false });
 
 
 

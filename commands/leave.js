@@ -1,4 +1,5 @@
 const createEmbed = require('../embed.js');
+const { queues } = require('../controllers/music.js');
 
 const { getVoiceConnection } = require('@discordjs/voice');
 
@@ -11,10 +12,16 @@ module.exports = {
 	aliases: [''],
 
 	execute(interaction, callback) {
+		const { guildId, member, user, options } = interaction;
+
 		const connection = getVoiceConnection(interaction.guildId);
 
 		if(connection) {
 			try {
+				const { player } = queues.get(guildId);
+
+				queues.delete(guildId);
+				player.stop();
 				connection.destroy();
 
 				const embed = createEmbed({

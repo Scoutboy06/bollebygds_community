@@ -3,7 +3,8 @@ const { MessageEmbed } = require('discord.js');
 
 function embed({ color, type, title, fields, author, desc, description, footer, image, thumbnail, timestamp, url, files }) {
 	const errorColor = 0xffcc4d;
-	const defaultColor = 0x61aeee;
+	// const defaultColor = 0x61aeee;
+	const defaultColor = 0x4c5157;
 	
 	const e = new MessageEmbed();
 	
