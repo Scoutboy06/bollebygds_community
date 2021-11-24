@@ -104,12 +104,37 @@ module.exports = {
 		}
 
 		else if (playlistUrl) {
-			const videos = await ytpl(playlistUrl, { pages: Infinity });
+			const { thumbnails, items, url, estimatedItemCount, title, author } = await ytpl(playlistUrl, { pages: Infinity });
 			
-			const urls = videos.items.map(vid => vid.url);
+			const urls = items.map(vid => vid.url);
 			queues.get(guildId).queue.push(...urls);
 
 			if(!queues.get(guildId).isPlaying) autoPlay({ guildId });
+
+
+			const embed = createEmbed({
+				author: {
+					name: 'Added to queue',
+					icon_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`,
+				},
+				title,
+				url,
+				thumbnail: thumbnails[2].url || thumbnails[1].url || thumbnails[0].url || '',
+				fields: [
+					{
+						name: 'Creator',
+						value: (author || 'Unknown'),
+						inline: true,
+					},
+					{
+						name: 'Number of Songs',
+						value: String(estimatedItemCount) || 'null',
+						inline: true,
+					},
+				],
+			});
+
+			callback({ embeds: [embed], empheral: false });
 		}
 
 		else {}

@@ -28,7 +28,7 @@ const queues = new Map();
 
 
 
-async function addSongToQueue({ url, guildId, member, details = false }) {
+async function addSongToQueue({ url, guildId, details = false }) {
 
 	let newSongData;
 
