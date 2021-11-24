@@ -1,5 +1,5 @@
 const createEmbed = require('../embed.js');
-const { queues, playSong } = require('../controllers/music.js');
+const { queues, playNextSong } = require('../controllers/music.js');
 
 const ytdl = require('ytdl-core-discord');
 
@@ -51,7 +51,7 @@ module.exports = {
 		queues.get(guildId).queue = queue;
 
 
-		if(queue.length > 0) playSong({ url: queue[0].url, player });
+		if(queue.length > 0) playNextSong(guildId);
 		else player.stop();
 		
 

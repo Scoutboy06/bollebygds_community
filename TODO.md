@@ -3,9 +3,10 @@ Music:
 	[x] /leave
 	[x] /play
 	[x] /skip
+	[] /clear
+	[] /playNext
 	[] /search
 	[] /pause
-	[] /play
 	[] /repeat
 	[] /np
 	[] /shuffle

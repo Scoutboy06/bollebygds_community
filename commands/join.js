@@ -14,7 +14,7 @@ module.exports = {
 	name: 'join',
 	description: 'Make the bot join your current voice channel',
 	usage: '',
-	aliases: ['j'],
+	aliases: [],
 
 	async execute(interaction, callback) {
 		const { guildId } = interaction;

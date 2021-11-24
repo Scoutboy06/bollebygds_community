@@ -70,11 +70,11 @@ module.exports = {
 			}
 		
 		
-			const { queue, songTitle, author, duration, requestedBy, thumbnail } = await addSongToQueue({ url, connection, guildId, member: member.user.tag });
+			const { queue, songTitle, author, duration, thumbnail } = await addSongToQueue({ url, guildId, member: member.user.tag, details: true });
 		
 			// If the queue's length is 1, then that means that there were no music playing before
 			// if(queue.length === 1) autoPlay({ guildId });
-			if(!queues.get({ guildId }).isPlaying) autoPlay({ guildId });
+			if(!queues.get(guildId)?.isPlaying) autoPlay({ guildId });
 		
 		
 		
@@ -105,25 +105,14 @@ module.exports = {
 
 		else if (playlistUrl) {
 			const videos = await ytpl(playlistUrl, { pages: Infinity });
-			for(let i = 0; i < videos.items.length; i++) {
-				await addSongToQueue({
-					url: videos.items[i].url,
-					connection,
-					guildId,
-					member,
-				})
-			}
+			
+			const urls = videos.items.map(vid => vid.url);
+			queues.get(guildId).queue.push(...urls);
 
-			if(!queues.get({ guildId }).isPlaying) autoPlay({ guildId });
+			if(!queues.get(guildId).isPlaying) autoPlay({ guildId });
 		}
 
 		else {}
-
-		
-		
-
-
-		// callback({ embeds: [embed], empheral: false });
 	}
 }
 
