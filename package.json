@@ -1,26 +1,28 @@
 {
-  "name": "bollebygds_community_bot",
-  "version": "1.0.0",
-  "main": "index.js",
-  "type": "commonjs",
-  "scripts": {
-    "start": "node .",
-    "dev": "nodemon .",
-    "dep": "node generateDependencyReport.js"
-  },
-  "author": "Elias Wennerlund",
-  "license": "MIT",
-  "dependencies": {
-    "@discordjs/builders": "^0.8.2",
-    "@discordjs/opus": "^0.6.0",
-    "@discordjs/rest": "^0.1.0-canary.0",
-    "@discordjs/voice": "^0.6.0",
-    "discord-api-types": "^0.23.1",
-    "discord.js": "^13.1.0",
-    "dotenv": "^10.0.0",
-    "ffmpeg-static": "^4.4.0",
-    "tweetnacl": "^1.0.3",
-    "ytdl-core-discord": "^1.3.1",
-    "ytpl": "^2.2.3"
-  }
+	"name": "bollebygds_community_bot",
+	"version": "1.0.0",
+	"main": "index.js",
+	"type": "commonjs",
+	"scripts": {
+		"start": "node .",
+		"dev": "nodemon .",
+		"dep": "node generateDependencyReport.js"
+	},
+	"author": "Elias Wennerlund",
+	"license": "MIT",
+	"dependencies": {
+		"@discordjs/builders": "^0.8.2",
+		"@discordjs/opus": "^0.6.0",
+		"@discordjs/rest": "^0.1.0-canary.0",
+		"@discordjs/voice": "^0.6.0",
+		"@yimura/scraper": "^1.2.3",
+		"discord-api-types": "^0.23.1",
+		"discord.js": "^13.1.0",
+		"dotenv": "^10.0.0",
+		"ffmpeg-static": "^4.4.0",
+		"simple-spotify": "^1.0.4",
+		"tweetnacl": "^1.0.3",
+		"ytdl-core-discord": "^1.3.1",
+		"ytpl": "^2.2.3"
+	}
 }

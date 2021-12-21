@@ -4,7 +4,7 @@ const { addSongToQueue, autoPlay, queues } = require('../controllers/music.js');
 const { getVoiceConnection } = require('@discordjs/voice');
 
 const ytdl = require('ytdl-core-discord');
-const ytpl = require('ytpl');
+// const ytpl = require('ytpl');
 
 module.exports = {
 	name: 'play',
@@ -12,12 +12,13 @@ module.exports = {
 	options: [
 		{
 			name: 'url',
-			description: 'The YouTube url of the song you want to play',
+			description: 'The url of the YouTube or Spotify song you want to play',
 			required: false,
 		},
 		{
 			name: 'playlist_url',
-			description: 'The YouTube url of the playlist you want to play',
+			description:
+				'The url of the YouTube or Spotify playlist you want to play',
 			required: false,
 		},
 	],
@@ -50,56 +51,74 @@ module.exports = {
 			return callback({ embeds: [embed], empheral: true });
 		}
 
-		// const url = 'https://www.youtube.com/watch?v=i1P-9IspBus';
 		const url = options.get('url')?.value;
 		const playlistUrl = options.get('playlist_url')?.value;
 
 		if (url) {
-			if (!ytdl.validateURL(url)) {
+			const spotifySongRegex = new RegExp(
+				'https://open.spotify.com/track/(?:[0-9a-z]+).*',
+				'gi'
+			);
+
+			const youtubeSongRegex = new RegExp(
+				'https://(?:www.)?(?:music.)?youtube.com/watch?.*',
+				'gi'
+			);
+
+			if (url.match(spotifySongRegex) || url.match(youtubeSongRegex)) {
+				const source = url.match(spotifySongRegex) ? 'spotify' : 'youtube';
+
+				const { songTitle, author, duration, thumbnail } = await addSongToQueue(
+					{
+						url,
+						guildId,
+						member: member.user.tag,
+						details: true,
+						source: source,
+					}
+				);
+
+				// If the queue's length is 1, then that means that there were no music playing before
+				// if(queue.length === 1) autoPlay({ guildId });
+				if (!queues.get(guildId).isPlaying) autoPlay({ guildId });
+
+				const embed = createEmbed({
+					author: {
+						name: 'Added to queue',
+						icon_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`,
+					},
+					title: songTitle,
+					url,
+					thumbnail,
+					fields: [
+						{
+							name: 'Channel',
+							value: author,
+							inline: true,
+						},
+						{
+							name: 'Song Duration',
+							value: secondsToTimestamp(parseInt(duration)),
+							inline: true,
+						},
+						{
+							name: 'Source',
+							value: source,
+							inline: true,
+						},
+					],
+				});
+
+				callback({ embeds: [embed], empheral: true });
+			} else {
 				const embed = createEmbed({
 					type: 'error',
 					title: 'Invalid url',
-					desc: 'The URL that you sent is not a valid YouTube url.',
+					desc: 'The URL that you sent is not a valid song url.',
 				});
 
 				callback({ embeds: [embed], empheral: true });
 			}
-
-			const { queue, songTitle, author, duration, thumbnail } =
-				await addSongToQueue({
-					url,
-					guildId,
-					member: member.user.tag,
-					details: true,
-				});
-
-			// If the queue's length is 1, then that means that there were no music playing before
-			// if(queue.length === 1) autoPlay({ guildId });
-			if (!queues.get(guildId)?.isPlaying) autoPlay({ guildId });
-
-			const embed = createEmbed({
-				author: {
-					name: 'Added to queue',
-					icon_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`,
-				},
-				title: songTitle,
-				url,
-				thumbnail,
-				fields: [
-					{
-						name: 'Channel',
-						value: author,
-						inline: true,
-					},
-					{
-						name: 'Song Duration',
-						value: secondsToTimestamp(parseInt(duration)),
-						inline: true,
-					},
-				],
-			});
-
-			callback({ embeds: [embed], empheral: true });
 		} else if (playlistUrl) {
 			const { thumbnails, items, url, estimatedItemCount, title, author } =
 				await ytpl(playlistUrl, { pages: Infinity });

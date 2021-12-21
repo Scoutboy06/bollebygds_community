@@ -138,6 +138,11 @@
   dependencies:
     "@types/node" "*"
 
+"@yimura/scraper@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@yimura/scraper/-/scraper-1.2.3.tgz#ca90d9748b8eeb3b04e87cf62b3ea82a1eedc0c6"
+  integrity sha512-4wuTvMnkH/3j+FVL1sV9z+VFZPxAJAciYoZoa+By8ljxF0PYYhB162q2eW+3lzkONFsXcvg6Hjm22rBEhwxujA==
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -653,6 +658,13 @@ signal-exit@^3.0.0:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.5.tgz#9e3e8cc0c75a99472b44321033a7702e7738252f"
   integrity sha512-KWcOiKeQj6ZyXx7zq4YxSMgHRlod4czeBQZrPb8OKcohcqAXShm7E20kEMle9WBt26hFcAf0qLOcp5zmY7kOqQ==
+
+simple-spotify@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/simple-spotify/-/simple-spotify-1.0.4.tgz#ba8d9a1c92d70f0bedd8a4f2f209d5714f579954"
+  integrity sha512-vDzQphwm76ij2k588VGr2YvxgMuEFNj7zPCzK/3zlxbo/YpZujwkNAmLaPbo2TSFOKfHnqr2BAwP56ReL4jXwg==
+  dependencies:
+    node-fetch "^2.6.1"
 
 "string-width@^1.0.1 || ^2.0.0", "string-width@^1.0.2 || 2":
   version "2.1.1"

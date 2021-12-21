@@ -8,6 +8,12 @@ const {
 	createAudioResource,
 } = require('@discordjs/voice');
 
+const { Spotify } = require('simple-spotify');
+const spotify = new Spotify();
+
+const Scraper = require('@yimura/scraper').default;
+const youtube = new Scraper();
+
 const queues = new Map();
 // guildId: {
 // 	queue: [
@@ -16,26 +22,27 @@ const queues = new Map();
 // 			songTitle: String,
 // 			duration: Number,
 // 			author: String,
-// 			requestedBy: 'user tag (Scoutboy06#3524)'
+// 			requestedBy: 'user tag (Scoutboy06#3524)',
+//			source: 'spotify' | 'youtube',
 // 		}
 // 	],
 // 	player: AudioPlayer,
 //	isPlaying: Boolean,
 // }
 
-async function addSongToQueue({ url, guildId, details = false }) {
-	let newSongData;
-
-	if (details) {
-		newSongData = await getSongMeta(url);
+async function addSongToQueue({ url, guildId, details = false, source }) {
+	if (!details) {
+		queues.get(guildId).queue.push({ url, source });
+		return;
 	}
 
-	const guildIsInList = queues.has(guildId);
-	if (!guildIsInList) queues.set(guildId, url);
-	else queues.get(guildId).queue.push(url);
+	const newSongData = await getSongMeta(url, source);
+
+	queues.get(guildId).queue.push(newSongData);
 
 	const returnData = {
 		queue: queues.get(guildId).queue,
+		source,
 	};
 
 	if (newSongData) {
@@ -77,11 +84,11 @@ async function playNextSong(guildId) {
 	const { player, queue } = data;
 
 	// If only has url and not metadata
-	if (typeof queue[0] === 'string') {
-		queue[0] = await getSongMeta(queue[0]);
+	if (!queue[0]?.yt_url) {
+		queue[0] = await getSongMeta(queue[0].url, queue[0].source);
 	}
 
-	const stream = await ytdl(queue[0].url, {
+	const stream = await ytdl(queue[0].yt_url, {
 		filter: 'audioonly',
 		quality: 'highestaudio',
 		highWaterMark: 1048576 * 200, // (200 MB)
@@ -93,22 +100,50 @@ async function playNextSong(guildId) {
 	data.isPlaying = true;
 
 	// Also checking second item in queue
-	if (typeof queue[1] === 'string') {
-		queue[1] = await getSongMeta(queue[1]);
+	if (queue[1] && !queue[1]?.yt_url) {
+		queue[1] = await getSongMeta(queue[1].url, queue[1].source);
 	}
 }
 
-async function getSongMeta(url) {
-	const songMeta = await ytdl.getBasicInfo(url);
-	const { title, ownerChannelName, lengthSeconds, thumbnails } =
-		songMeta.videoDetails;
+async function getSongMeta(url, source) {
+	if (source === 'youtube') {
+		const songMeta = await ytdl.getBasicInfo(url);
+		const { title, ownerChannelName, lengthSeconds, thumbnails } =
+			songMeta.videoDetails;
+
+		return {
+			yt_url: url,
+			url,
+			songTitle: title,
+			author: ownerChannelName,
+			duration: lengthSeconds,
+			thumbnail: thumbnails[0].url,
+			source,
+		};
+	} else if (source === 'spotify') {
+		const songMeta = await spotify.track(url);
+
+		const { yt_url } = await searchYoutube(
+			songMeta.name + ' - ' + songMeta.artists[0].name + ' (Lyrics)'
+		);
+
+		return {
+			yt_url,
+			url,
+			songTitle: songMeta.name,
+			author: songMeta.artists[0].name,
+			duration: Math.round(Number(songMeta.duration_ms) / 1000),
+			thumbnail: songMeta.album.images[1].url,
+			source,
+		};
+	}
+}
+
+async function searchYoutube(term) {
+	const results = await youtube.search(term);
 
 	return {
-		url,
-		songTitle: title,
-		author: ownerChannelName,
-		duration: lengthSeconds,
-		thumbnail: thumbnails[0].url,
+		yt_url: results.videos[0].link,
 	};
 }
 
