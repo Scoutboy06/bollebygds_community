@@ -4,30 +4,26 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-
 async function main() {
-  queues.clear();
+	queues.clear();
 
-  const client = await login();
+	const client = await login();
 
-  // await refreshSlashCommands(client);
+	// await refreshSlashCommands(client);
 
+	client.on('interactionCreate', async interaction => {
+		if (interaction.isCommand()) {
+			const cmd = interaction.commandName;
 
-  client.on('interactionCreate', async interaction => {  
-    if(interaction.isCommand()) {
-      const cmd = interaction.commandName;
-  
-      commands.forEach(command => {
-        if(command.name === cmd || command.aliases.indexOf(cmd) > -1) {
-          command.execute(interaction, async msg => {
-            await interaction.reply(msg);
-          });
-        }
-      });
-    }
-  });
+			commands.forEach(command => {
+				if (command.name === cmd || command.aliases.indexOf(cmd) > -1) {
+					command.execute(interaction, async msg => {
+						await interaction.reply(msg);
+					});
+				}
+			});
+		}
+	});
 }
-
-
 
 main();

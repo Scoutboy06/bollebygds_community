@@ -6,8 +6,6 @@ const { getVoiceConnection } = require('@discordjs/voice');
 const ytdl = require('ytdl-core-discord');
 const ytpl = require('ytpl');
 
-
-
 module.exports = {
 	name: 'play',
 	description: 'Play a song from YouTube',
@@ -30,21 +28,19 @@ module.exports = {
 		const { guildId, member, user, options } = interaction;
 		const { channel, channelId } = member.voice;
 
-
-		if(!(channel && channelId && guildId)) {
+		if (!(channel && channelId && guildId)) {
 			const embed = createEmbed({
-				title: 'You\'re not in a VC',
-				desctiption: 'You\'re currently not connected to a voice channel',
+				title: "You're not in a VC",
+				desctiption: "You're currently not connected to a voice channel",
 				type: 'error',
 			});
 
 			return callback({ embeds: [embed], empheral: true });
 		}
 
-
 		const connection = getVoiceConnection(guildId);
 
-		if(!connection) {
+		if (!connection) {
 			const embed = createEmbed({
 				type: 'error',
 				title: 'Bot not in a VC',
@@ -58,26 +54,29 @@ module.exports = {
 		const url = options.get('url')?.value;
 		const playlistUrl = options.get('playlist_url')?.value;
 
-		if(url) {
-			if(!ytdl.validateURL(url)) {
-				const embed =  createEmbed({
+		if (url) {
+			if (!ytdl.validateURL(url)) {
+				const embed = createEmbed({
 					type: 'error',
 					title: 'Invalid url',
-					desc: 'The URL that you sent is not a valid YouTube url.'
+					desc: 'The URL that you sent is not a valid YouTube url.',
 				});
 
 				callback({ embeds: [embed], empheral: true });
 			}
-		
-		
-			const { queue, songTitle, author, duration, thumbnail } = await addSongToQueue({ url, guildId, member: member.user.tag, details: true });
-		
+
+			const { queue, songTitle, author, duration, thumbnail } =
+				await addSongToQueue({
+					url,
+					guildId,
+					member: member.user.tag,
+					details: true,
+				});
+
 			// If the queue's length is 1, then that means that there were no music playing before
 			// if(queue.length === 1) autoPlay({ guildId });
-			if(!queues.get(guildId)?.isPlaying) autoPlay({ guildId });
-		
-		
-		
+			if (!queues.get(guildId)?.isPlaying) autoPlay({ guildId });
+
 			const embed = createEmbed({
 				author: {
 					name: 'Added to queue',
@@ -101,16 +100,14 @@ module.exports = {
 			});
 
 			callback({ embeds: [embed], empheral: true });
-		}
+		} else if (playlistUrl) {
+			const { thumbnails, items, url, estimatedItemCount, title, author } =
+				await ytpl(playlistUrl, { pages: Infinity });
 
-		else if (playlistUrl) {
-			const { thumbnails, items, url, estimatedItemCount, title, author } = await ytpl(playlistUrl, { pages: Infinity });
-			
 			const urls = items.map(vid => vid.url);
 			queues.get(guildId).queue.push(...urls);
 
-			if(!queues.get(guildId).isPlaying) autoPlay({ guildId });
-
+			if (!queues.get(guildId).isPlaying) autoPlay({ guildId });
 
 			const embed = createEmbed({
 				author: {
@@ -119,11 +116,12 @@ module.exports = {
 				},
 				title,
 				url,
-				thumbnail: thumbnails[2].url || thumbnails[1].url || thumbnails[0].url || '',
+				thumbnail:
+					thumbnails[2].url || thumbnails[1].url || thumbnails[0].url || '',
 				fields: [
 					{
 						name: 'Creator',
-						value: (author || 'Unknown'),
+						value: author || 'Unknown',
 						inline: true,
 					},
 					{
@@ -135,26 +133,22 @@ module.exports = {
 			});
 
 			callback({ embeds: [embed], empheral: false });
+		} else {
 		}
-
-		else {}
-	}
-}
-
-
-
+	},
+};
 
 function secondsToTimestamp(sec) {
 	const hours = Math.floor(sec / 60 / 60);
-	const minutes = Math.floor(sec / 60) - (hours * 60);
-	const seconds = sec - (minutes * 60) - (hours * 60);
+	const minutes = Math.floor(sec / 60) - hours * 60;
+	const seconds = sec - minutes * 60 - hours * 60;
 
-	return `${hours > 0 ? hours + ':' : ''}${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
+	return `${hours > 0 ? hours + ':' : ''}${doubleDigit(minutes)}:${doubleDigit(
+		seconds
+	)}`;
 }
 
-
-
 function doubleDigit(n) {
-	if(n < 10) n = '0' + n;
+	if (n < 10) n = '0' + n;
 	return n;
 }

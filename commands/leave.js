@@ -3,8 +3,6 @@ const { queues } = require('../controllers/music.js');
 
 const { getVoiceConnection } = require('@discordjs/voice');
 
-
-
 module.exports = {
 	name: 'leave',
 	description: 'Leave the current voice channel',
@@ -16,7 +14,7 @@ module.exports = {
 
 		const connection = getVoiceConnection(interaction.guildId);
 
-		if(connection) {
+		if (connection) {
 			try {
 				const { player } = queues.get(guildId);
 
@@ -26,25 +24,22 @@ module.exports = {
 
 				const embed = createEmbed({
 					title: 'Successfully left voice channel',
-					description: 'Disconnected from ' + interaction.member.voice.channel.name,
+					description:
+						'Disconnected from ' + interaction.member.voice.channel.name,
 				});
-	
-				callback({ embeds: [embed], empheral: true });
-			}
 
-			catch(err) {
+				callback({ embeds: [embed], empheral: true });
+			} catch (err) {
 				console.error(err);
 			}
-		}
-
-		else {
+		} else {
 			const embed = createEmbed({
 				type: 'error',
 				title: 'Not in a VC',
-				description: 'This bot is currently not connected to a voice channel'
+				description: 'This bot is currently not connected to a voice channel',
 			});
 
 			callback({ embeds: [embed], empheral: true });
 		}
-	}
-}
+	},
+};

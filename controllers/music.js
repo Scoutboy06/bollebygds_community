@@ -1,4 +1,3 @@
-
 const ytdl = require('ytdl-core-discord');
 
 const {
@@ -8,7 +7,6 @@ const {
 	NoSubscriberBehavior,
 	createAudioResource,
 } = require('@discordjs/voice');
-
 
 const queues = new Map();
 // guildId: {
@@ -25,28 +23,22 @@ const queues = new Map();
 //	isPlaying: Boolean,
 // }
 
-
-
-
 async function addSongToQueue({ url, guildId, details = false }) {
-
 	let newSongData;
 
-	if(details) {
+	if (details) {
 		newSongData = await getSongMeta(url);
 	}
 
-
 	const guildIsInList = queues.has(guildId);
-	if(!guildIsInList) queues.set(guildId, url);
+	if (!guildIsInList) queues.set(guildId, url);
 	else queues.get(guildId).queue.push(url);
-
 
 	const returnData = {
 		queue: queues.get(guildId).queue,
 	};
 
-	if(newSongData) {
+	if (newSongData) {
 		returnData.url = newSongData.url;
 		returnData.songTitle = newSongData.songTitle;
 		returnData.author = newSongData.author;
@@ -54,19 +46,12 @@ async function addSongToQueue({ url, guildId, details = false }) {
 		returnData.thumbnail = newSongData.thumbnail;
 	}
 
-
 	return returnData;
 }
 
-
-
-
 async function autoPlay({ guildId }) {
-
 	const connection = getVoiceConnection(guildId);
 	const { queue, player } = queues.get(guildId);
-
-
 
 	player.on('error', console.error);
 
@@ -75,7 +60,7 @@ async function autoPlay({ guildId }) {
 
 		queue.shift();
 
-		if(queue.length > 0) playNextSong(guildId);
+		if (queue.length > 0) playNextSong(guildId);
 		else {
 			// queues.delete(guildId);
 			// player.stop();
@@ -83,24 +68,18 @@ async function autoPlay({ guildId }) {
 		}
 	});
 
-
 	await playNextSong(guildId);
 	connection.subscribe(player);
 }
-
-
-
 
 async function playNextSong(guildId) {
 	const data = queues.get(guildId);
 	const { player, queue } = data;
 
-
 	// If only has url and not metadata
-	if(typeof queue[0] === 'string') {
+	if (typeof queue[0] === 'string') {
 		queue[0] = await getSongMeta(queue[0]);
 	}
-
 
 	const stream = await ytdl(queue[0].url, {
 		filter: 'audioonly',
@@ -113,19 +92,16 @@ async function playNextSong(guildId) {
 
 	data.isPlaying = true;
 
-
 	// Also checking second item in queue
-	if(typeof queue[1] === 'string') {
+	if (typeof queue[1] === 'string') {
 		queue[1] = await getSongMeta(queue[1]);
 	}
 }
 
-
-
-
 async function getSongMeta(url) {
 	const songMeta = await ytdl.getBasicInfo(url);
-	const { title, ownerChannelName, lengthSeconds, thumbnails } = songMeta.videoDetails;
+	const { title, ownerChannelName, lengthSeconds, thumbnails } =
+		songMeta.videoDetails;
 
 	return {
 		url,
@@ -136,14 +112,10 @@ async function getSongMeta(url) {
 	};
 }
 
-
-
-
-
 module.exports = {
 	addSongToQueue,
 	autoPlay,
 	playNextSong,
 
 	queues,
-}
+};

@@ -3,11 +3,7 @@ const { queues, playNextSong } = require('../controllers/music.js');
 
 const ytdl = require('ytdl-core-discord');
 
-const {
-	getVoiceConnection,
-} = require('@discordjs/voice');
-
-
+const { getVoiceConnection } = require('@discordjs/voice');
 
 module.exports = {
 	name: 'skip',
@@ -17,7 +13,7 @@ module.exports = {
 			name: 'number_of_songs',
 			description: 'Skip to a specific index in the queue',
 			required: false,
-		}
+		},
 	],
 	aliases: ['s'],
 
@@ -27,7 +23,7 @@ module.exports = {
 
 		const connection = getVoiceConnection(guildId);
 
-		if(!connection) {
+		if (!connection) {
 			const embed = createEmbed({
 				type: 'error',
 				title: 'Not connected to VC',
@@ -38,27 +34,24 @@ module.exports = {
 			return;
 		}
 
-
-
 		let { queue, player } = queues.get(guildId);
-
 
 		const numberOfSongsToSkip = options.get('number_of_songs')?.value;
 
-		if(numberOfSongsToSkip) queue = queue.slice(parseInt(numberOfSongsToSkip));
+		if (numberOfSongsToSkip) queue = queue.slice(parseInt(numberOfSongsToSkip));
 		else queue.shift();
 
 		queues.get(guildId).queue = queue;
 
-
-		if(queue.length > 0) playNextSong(guildId);
+		if (queue.length > 0) playNextSong(guildId);
 		else player.stop();
-		
 
 		const embed = createEmbed({
-			title: `Skipped ${numberOfSongsToSkip ? numberOfSongsToSkip + ' songs' : 'a song'}`,
+			title: `Skipped ${
+				numberOfSongsToSkip ? numberOfSongsToSkip + ' songs' : 'a song'
+			}`,
 		});
 
 		callback({ embeds: [embed], empheral: true });
-	}
-}
+	},
+};
