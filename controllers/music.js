@@ -123,9 +123,11 @@ async function getSongMeta(url, source) {
 	} else if (source === 'spotify') {
 		const songMeta = await spotify.track(url);
 
-		const { yt_url } = await searchYoutube(
+		const { videos } = await searchYoutube(
 			songMeta.name + ' - ' + songMeta.artists[0].name + ' (Lyrics)'
 		);
+
+		const yt_url = videos[0].link;
 
 		return {
 			yt_url,
@@ -141,10 +143,7 @@ async function getSongMeta(url, source) {
 
 async function searchYoutube(term) {
 	const results = await youtube.search(term);
-
-	return {
-		yt_url: results.videos[0].link,
-	};
+	return results;
 }
 
 module.exports = {

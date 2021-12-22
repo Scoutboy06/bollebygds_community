@@ -165,10 +165,6 @@ module.exports = {
 					tracks: { items, total },
 				} = await spotify.playlist(playlistUrl);
 
-				console.log(items[0]);
-				console.log(items[0].track);
-				console.log(items[0].track.id);
-
 				const urls = items.map(song => ({ url: song.track.id, source }));
 				queues.get(guildId).queue.push(...urls);
 
