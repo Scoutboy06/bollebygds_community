@@ -3,3 +3,4 @@
 generateDependencyReport.js
 /beta
 test.js
+nodemon.json

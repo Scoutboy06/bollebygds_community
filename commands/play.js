@@ -3,8 +3,9 @@ const { addSongToQueue, autoPlay, queues } = require('../controllers/music.js');
 
 const { getVoiceConnection } = require('@discordjs/voice');
 
-const ytdl = require('ytdl-core-discord');
-// const ytpl = require('ytpl');
+const { Spotify } = require('simple-spotify');
+const spotify = new Spotify();
+const ytpl = require('ytpl');
 
 module.exports = {
 	name: 'play',
@@ -120,11 +121,68 @@ module.exports = {
 				callback({ embeds: [embed], empheral: true });
 			}
 		} else if (playlistUrl) {
-			const { thumbnails, items, url, estimatedItemCount, title, author } =
-				await ytpl(playlistUrl, { pages: Infinity });
+			const spotifyPlaylistRegex = new RegExp(
+				'(?:https://)?open.spotify.com/playlist/.*',
+				'gi'
+			);
+			const youtubePlaylistRegex = new RegExp(
+				'(?:https://)?(?:www.)?(?:music.)?youtube.com/watch.*(list=[0-9a-z_-]+).*',
+				'gi'
+			);
 
-			const urls = items.map(vid => vid.url);
-			queues.get(guildId).queue.push(...urls);
+			let data;
+
+			if (playlistUrl.match(youtubePlaylistRegex)) {
+				const source = 'youtube';
+
+				const { thumbnails, items, url, estimatedItemCount, title, author } =
+					await ytpl(playlistUrl, { pages: Infinity });
+
+				const urls = items.map(vid => ({ url: vid.url, source }));
+				queues.get(guildId).queue.push(...urls);
+
+				data = {
+					thumbnails,
+					thumbnail:
+						data.thumbnails[2].url ||
+						data.thumbnails[1].url ||
+						data.thumbnails[0].url,
+					items,
+					// url,
+					url: playlistUrl,
+					totalSongs: estimatedItemCount,
+					title,
+					author,
+					source,
+				};
+			} else if (playlistUrl.match(spotifyPlaylistRegex)) {
+				const source = 'spotify';
+
+				const {
+					images,
+					name,
+					owner,
+					tracks: { items, total },
+				} = await spotify.playlist(playlistUrl);
+
+				console.log(items[0]);
+				console.log(items[0].track);
+				console.log(items[0].track.id);
+
+				const urls = items.map(song => ({ url: song.track.id, source }));
+				queues.get(guildId).queue.push(...urls);
+
+				data = {
+					thumbnails: images,
+					thumbnail: images[0].url,
+					items,
+					url: playlistUrl,
+					totalSongs: total,
+					title: name,
+					author: owner.display_name,
+					source,
+				};
+			}
 
 			if (!queues.get(guildId).isPlaying) autoPlay({ guildId });
 
@@ -133,19 +191,23 @@ module.exports = {
 					name: 'Added to queue',
 					icon_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`,
 				},
-				title,
-				url,
-				thumbnail:
-					thumbnails[2].url || thumbnails[1].url || thumbnails[0].url || '',
+				title: data.title,
+				url: data.url,
+				thumbnail: data.thumbnail,
 				fields: [
 					{
 						name: 'Creator',
-						value: author || 'Unknown',
+						value: data.author || 'Unknown',
 						inline: true,
 					},
 					{
 						name: 'Number of Songs',
-						value: String(estimatedItemCount) || 'null',
+						value: String(data.totalSongs) || 'null',
+						inline: true,
+					},
+					{
+						name: 'Source',
+						value: data.source == 'youtube' ? 'YouTube' : 'Spotify',
 						inline: true,
 					},
 				],
@@ -153,6 +215,13 @@ module.exports = {
 
 			callback({ embeds: [embed], empheral: false });
 		} else {
+			const embed = createEmbed({
+				type: 'error',
+				title: 'No argument specified',
+				desc: "You need to select either 'url' or 'playlist_url' as an argument",
+			});
+
+			callback({ embeds: [embed], empheral: true });
 		}
 	},
 };
