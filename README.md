@@ -2,7 +2,7 @@
 
 This is a **Discord music bot** made with [discord.js](https://discord.js.org/#/).\
 It supports YouTube, YouTube Music and Spotify songs and playlists.\
-\
+
 ### Using yarn:
 `yarn install`\
 `yarn start` or `yarn dev`
